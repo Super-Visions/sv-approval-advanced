@@ -23,7 +23,7 @@ Approval status example with 4 levels of approval:
 
 ## Contribute
 
-###Translation
+### Translation
 
 Translations can be submitted via [Transifex][3].
 Please create a new issue if you want a new language to be added to the project.
