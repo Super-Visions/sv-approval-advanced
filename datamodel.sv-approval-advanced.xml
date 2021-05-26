@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
+	<classes>
+		<class id="ApprovalRuleLevel" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<category/>
+				<abstract>false</abstract>
+				<db_table>approval_rule_level</db_table>
+				<naming>
+					<attributes>
+						<attribute id="rule_name"/>
+						<attribute id="level"/>
+					</attributes>
+				</naming>
+				<reconciliation>
+					<attributes>
+						<attribute id="rule_id"/>
+						<attribute id="level"/>
+					</attributes>
+				</reconciliation>
+				<uniqueness_rules>
+					<rule id="rule_level">
+						<attributes>
+							<attribute id="rule_id"/>
+							<attribute id="level"/>
+						</attributes>
+					</rule>
+				</uniqueness_rules>
+			</properties>
+			<fields>
+				<field id="rule_id" xsi:type="AttributeExternalKey">
+					<sql>rule_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<target_class>ApprovalRule</target_class>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="rule_name" xsi:type="AttributeExternalField">
+					<extkey_attcode>rule_id</extkey_attcode>
+					<target_attcode>name</target_attcode>
+				</field>
+				<field id="level" xsi:type="AttributeInteger">
+					<sql>level</sql>
+					<default_value>1</default_value>
+					<is_null_allowed>false</is_null_allowed>
+					<tracking_level>none</tracking_level>
+				</field>
+				<field id="approvers" xsi:type="AttributeOQL">
+					<sql>approvers</sql>
+					<default_value>SELECT Person</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="default_approval" xsi:type="AttributeEnum" _delta="define">
+					<values>
+						<value>yes</value>
+						<value>no</value>
+					</values>
+					<sql>default_approval</sql>
+					<default_value>no</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="timeout" xsi:type="AttributeInteger" _delta="define">
+					<sql>timeout</sql>
+					<default_value>70</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="exit_condition" xsi:type="AttributeEnum" _delta="define">
+					<values>
+						<value>first_reply</value>
+						<value>first_reject</value>
+						<value>first_approve</value>
+					</values>
+					<sql>exit_condition</sql>
+					<default_value>first_reply</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="rule_id">
+							<rank>10</rank>
+						</item>
+						<item id="level">
+							<rank>20</rank>
+						</item>
+						<item id="approvers">
+							<rank>30</rank>
+						</item>
+						<item id="default_approval">
+							<rank>40</rank>
+						</item>
+						<item id="timeout">
+							<rank>50</rank>
+						</item>
+						<item id="exit_condition">
+							<rank>60</rank>
+						</item>
+					</items>
+				</details>
+				<list>
+					<items>
+						<item id="level">
+							<rank>10</rank>
+						</item>
+						<item id="default_approval">
+							<rank>20</rank>
+						</item>
+						<item id="timeout">
+							<rank>30</rank>
+						</item>
+						<item id="exit_condition">
+							<rank>40</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+		<class id="ApprovalRule" _created_in="combodo-approval-extended" _delta="must_exist">
+			<fields>
+				<field id="level_list" xsi:type="AttributeLinkedSet" _delta="define">
+					<linked_class>ApprovalRuleLevel</linked_class>
+					<ext_key_to_me>rule_id</ext_key_to_me>
+					<tracking_level>all</tracking_level>
+					<edit_mode>in_place</edit_mode>
+				</field>
+				<field id="level1_rule" _delta="delete"/>
+				<field id="level1_default_approval" _delta="delete"/>
+				<field id="level1_timeout" _delta="delete"/>
+				<field id="level1_exit_condition" _delta="delete"/>
+				<field id="level2_rule" _delta="delete"/>
+				<field id="level2_default_approval" _delta="delete"/>
+				<field id="level2_timeout" _delta="delete"/>
+				<field id="level2_exit_condition" _delta="delete"/>
+			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="level_list" _delta="define">
+							<rank>5</rank>
+						</item>
+						<item id="col:col2">
+							<items>
+								<item id="fieldset:ApprovalRule:Level1" _delta="delete"/>
+							</items>
+						</item>
+						<item id="col:col3">
+							<items>
+								<item id="fieldset:ApprovalRule:Level2" _delta="delete"/>
+							</items>
+						</item>
+					</items>
+				</details>
+			</presentation>
+		</class>
+		<class id="ExtendedApprovalScheme" _created_in="combodo-approval-extended" _delta="must_exist">
+			<methods>
+				<method id="GetApprovalScheme">
+					<code _delta="redefine"><![CDATA[	public static function GetApprovalScheme($oObject, $sReachingState)
+	{
+		if (!is_a($oObject, UserRequest::class))
+		{
+			return null;
+		}
+		$sTargetState = MetaModel::GetConfig()->GetModuleSetting('combodo-approval-extended', 'target_state', 'new');
+		if ($sReachingState != $sTargetState)
+		{
+			return null;
+		}
+
+		$sOQL = 'SELECT ApprovalRuleLevel WHERE rule_id = :rule_id';
+		$oApprovalRuleLevelSet = new DBObjectSet(
+			DBObjectSearch::FromOQL($sOQL),
+			array('level' => true),
+			array('rule_id' => $oObject->Get('servicesubcategory_id->approvalrule_id'))
+		);
+		if ($oApprovalRuleLevelSet->count() == 0)
+		{
+			// No approval rule applies to the current object
+			return null;
+		}
+		$aExitConditionCodes = array(
+			'first_reply' => ApprovalScheme::EXIT_ON_FIRST_REPLY,
+			'first_reject' => ApprovalScheme::EXIT_ON_FIRST_REJECT,
+			'first_approve' => ApprovalScheme::EXIT_ON_FIRST_APPROVE,
+		);
+		$bReusePreviousAnswers = MetaModel::GetConfig()->GetModuleSetting('combodo-approval-extended', 'reuse_previous_answers', true);
+
+		/** @var _ApprovalScheme_ $oScheme */
+		$oScheme = new ExtendedApprovalScheme();
+
+		$bStepAdded = false;
+
+		/** @var ApprovalRuleLevel $oApprovalRuleLevel */
+		while ($oApprovalRuleLevel = $oApprovalRuleLevelSet->Fetch())
+		{
+			$bStepAdded |= $oScheme->AddStepFromQuery(
+				$oObject,
+				$oApprovalRuleLevel->Get('approvers'),
+				$oApprovalRuleLevel->Get('timeout') * 3600,
+				$oApprovalRuleLevel->Get('default_approval') == 'yes',
+				$aExitConditionCodes[$oApprovalRuleLevel->Get('exit_condition')],
+				$bReusePreviousAnswers
+			);
+		}
+
+		if ($bStepAdded)
+		{
+			$oObject->ApplyStimulus('ev_wait_for_approval');
+			return $oScheme;
+		}
+	}]]></code>
+				</method>
+			</methods>
+		</class>
+		<class id="GRExtendedApprovalScheme" _created_in="itop-global-requests-mgmt" _delta="if_exists">
+			<methods>
+				<method id="GetApprovalScheme">
+					<code _delta="redefine"><![CDATA[	public static function GetApprovalScheme($oObject, $sReachingState)
+	{
+		$aExitConditionCodes = array(
+			'first_reply' => ApprovalScheme::EXIT_ON_FIRST_REPLY,
+			'first_reject' => ApprovalScheme::EXIT_ON_FIRST_REJECT,
+			'first_approve' => ApprovalScheme::EXIT_ON_FIRST_APPROVE,
+		);
+		if (!($oObject instanceof GlobalRequest))
+		{
+			return null;
+		}
+		if ($sReachingState != 'new')
+		{
+			return null;
+		}
+		$sOQL = 'SELECT ApprovalRuleLevel AS ARL JOIN ApprovalRule AS AR ON ARL.rule_id = AR.id JOIN GRType AS T ON T.approvalrule_id = AR.id WHERE T.code = :code';
+		$oApprovalRuleLevelSet = new DBObjectSet(
+			DBObjectSearch::FromOQL($sOQL),
+			array('level' => true),
+			array('code' => get_class($oObject))
+		);
+		$bReusePreviousAnswers = MetaModel::GetConfig()->GetModuleSetting('gr-approval-extended', 'reuse_previous_answers', true);
+
+		/** @var _ApprovalScheme_ $oScheme */
+		$oScheme = new GRExtendedApprovalScheme();
+
+		$bStepAdded = false;
+
+		/** @var ApprovalRuleLevel $oApprovalRuleLevel */
+		while ($oApprovalRuleLevel = $oApprovalRuleLevelSet->Fetch())
+		{
+			$bStepAdded |= $oScheme->AddStepFromQuery(
+				$oObject,
+				$oApprovalRuleLevel->Get('approvers'),
+				$oApprovalRuleLevel->Get('timeout') * 3600,
+				$oApprovalRuleLevel->Get('default_approval') == 'yes',
+				$aExitConditionCodes[$oApprovalRuleLevel->Get('exit_condition')],
+				$bReusePreviousAnswers
+			);
+		}
+
+		if ($bStepAdded)
+		{
+			$oObject->ApplyStimulus('ev_wait_for_approval');
+			return $oScheme;
+		}
+		else
+		{
+		    $oObject->ApplyStimulus('ev_wip');
+            return null;
+		}
+	}]]></code>
+				</method>
+			</methods>
+		</class>
+	</classes>
+	<dictionaries>
+		<dictionary id="EN US">
+			<entries>
+				<entry id="Class:ApprovalRule/Attribute:level_list" _delta="define">Levels</entry>
+				<entry id="Class:ApprovalRule/Attribute:level_list+" _delta="define">All the approval levels for this approval rule</entry>
+				<entry id="Class:ApprovalRuleLevel" _delta="define">Approval Rule Level</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:approvers" _delta="define">Approvers</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:default_approval" _delta="define">Automatically approved if no answer</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:default_approval/Value:no" _delta="define">No</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:default_approval/Value:yes" _delta="define">Yes</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition" _delta="define">Approval ending</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_approve" _delta="define">Ends on first "Approve"</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_approve+" _delta="define">Only one approval is requested</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reject" _delta="define">Ends on first "Reject"</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reject+" _delta="define">Everyone must approve</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reply" _delta="define">Ends on the first reply</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reply+" _delta="define">The first reply determines the result at this level</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:level" _delta="define">Level</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:rule_id" _delta="define">Approval rule</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:rule_name" _delta="define">Approval rule name</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:timeout" _delta="define">Approval delay (hours)</entry>
+				<entry id="Class:ApprovalRuleLevel/Name" _delta="define">%1$s - Level %2$s</entry>
+			</entries>
+		</dictionary>
+	</dictionaries>
+</itop_design>
