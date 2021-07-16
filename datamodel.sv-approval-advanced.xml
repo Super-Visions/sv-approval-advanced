@@ -297,5 +297,28 @@
 				<entry id="Class:ApprovalRuleLevel/Name" _delta="define">%1$s - Level %2$s</entry>
 			</entries>
 		</dictionary>
+		<dictionary id="FR FR">
+			<entries>
+				<entry id="Class:ApprovalRule/Attribute:level_list" _delta="define">Niveaux</entry>
+				<entry id="Class:ApprovalRule/Attribute:level_list+" _delta="define">Tous les niveaux d'approbation de cette règle d'approbation</entry>
+				<entry id="Class:ApprovalRuleLevel" _delta="define">Niveau de règle d'approbation</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:approvers" _delta="define">Approbateurs</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:default_approval" _delta="define">Approuver automatiquement si pas de réponse</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:default_approval/Value:no" _delta="define">Non</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:default_approval/Value:yes" _delta="define">Oui</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition" _delta="define">Fin de l'approbation</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_approve" _delta="define">Se termine à la première "Approbation"</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_approve+" _delta="define">Une seule approbation nécessaire</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reject" _delta="define">Se termine au premier "Refus"</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reject+" _delta="define">Tout le monde doit approuver</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reply" _delta="define">Se termine à la première réponse</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:exit_condition/Value:first_reply+" _delta="define">La première réponse détermine le résultat de ce niveau</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:level" _delta="define">Niveau</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:rule_id" _delta="define">Règle d'approbation</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:rule_name" _delta="define">Nom de la règle d'approbation</entry>
+				<entry id="Class:ApprovalRuleLevel/Attribute:timeout" _delta="define">Délai d'approbation (heures)</entry>
+				<entry id="Class:ApprovalRuleLevel/Name" _delta="define">%1$s - Niveau %2$s</entry>
+			</entries>
+		</dictionary>
 	</dictionaries>
 </itop_design>
