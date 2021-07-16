@@ -28,6 +28,10 @@ Approval status example with 4 levels of approval:
 Translations can be submitted via [Transifex][3].
 Please create a new issue if you want a new language to be added to the project.
 
+#### Translation status
+
+[![Translation status](https://www.transifex.com/projects/p/sv-approval-advanced/resource/dictsv-approval-advancedjson/chart/image_png)][3]
+
 [1]: https://store.itophub.io/en_US/products/combodo-approval-process-automation
 [2]: https://github.com/Combodo/combodo-approval-extended/pull/2
 [3]: https://www.transifex.com/super-visions/sv-approval-advanced
